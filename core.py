@@ -20,6 +20,9 @@ class Database(object):
         self.entryList.append(entry)
         self.reSort()
 
+    def getEntries(self):
+        return self.entryList[:]
+
     def reSort(self):
         if self.sortKey == self.SORT_BY_TIME_EDITED:
             self.entryList.sort(key=lambda x: x.timeLastEdited)
