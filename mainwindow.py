@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Wed Mar  5 23:18:14 2014
+# Created: Sat Mar  8 15:51:41 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(802, 571)
+        MainWindow.resize(802, 735)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.verticalLayout_4 = QtGui.QVBoxLayout(self.centralwidget)
@@ -52,9 +52,19 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.btn_newEntry)
         self.horizontalLayout_2.addLayout(self.verticalLayout)
         self.verticalLayout_4.addLayout(self.horizontalLayout_2)
-        self.entryGrid = QtGui.QGridLayout()
-        self.entryGrid.setObjectName(_fromUtf8("entryGrid"))
-        self.verticalLayout_4.addLayout(self.entryGrid)
+        self.entryScroll = QtGui.QScrollArea(self.centralwidget)
+        self.entryScroll.setWidgetResizable(True)
+        self.entryScroll.setObjectName(_fromUtf8("entryScroll"))
+        self.scrollAreaWidgetContents = QtGui.QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 782, 596))
+        self.scrollAreaWidgetContents.setObjectName(_fromUtf8("scrollAreaWidgetContents"))
+        self.verticalLayout_2 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents)
+        self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
+        self.entryView = QtGui.QWidget(self.scrollAreaWidgetContents)
+        self.entryView.setObjectName(_fromUtf8("entryView"))
+        self.verticalLayout_2.addWidget(self.entryView)
+        self.entryScroll.setWidget(self.scrollAreaWidgetContents)
+        self.verticalLayout_4.addWidget(self.entryScroll)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 802, 25))

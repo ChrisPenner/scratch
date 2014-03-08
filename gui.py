@@ -18,11 +18,28 @@ def main():
 
     mwHandler.initMainWindow()
 
-    testing(ui)
-
+    dbh = initDB(ui)
     mw.show()
+    dbh.resized()
+
+    testing(ui, dbh)
+
     sys.exit(app.exec_())
     return
+
+def initDB(ui):
+    db = core.Database()
+    grid = QtGui.QGridLayout()
+    ui.entryView.setLayout(grid)
+
+    # ui.entryView.setFixedHeight(400)
+
+    dbh = DatabaseHandler(db, ui.entryView)
+    ui.centralwidget.resizeEvent = dbh.resizeEvent
+
+    dbh.resized()
+    return dbh
+
 
 
 class mainWindowHandler(object):
@@ -74,14 +91,28 @@ class EntryHandler(object):
 class DatabaseHandler(object):
     """Handles all interactions with the Database and the GUI Grid."""
 
-    def __init__(self, database, grid):
+    def __init__(self, database, entryView):
+        self.grid = entryView.layout()
+        self.entryView = entryView
         self.database = database
-        self.grid = grid
         self.numColumns = 3
+        self.minRowHeight = 150
+        self.columnWidth = 200
         self.entryHandlers = []
         self.initEntries()
         self.updateList()
+        self.resized()
+        # self.grid.resizeEvent = self.resizeEvent
         return
+
+    def addEntry(self, entry):
+        self.database.addEntry(entry)
+        self.entryHandlers.append(EntryHandler(entry))
+        self.updateList()
+
+    def resizeEvent(self, event):
+        self.resized()
+        pass
 
     def initEntries(self):
         self.entryHandlers = [EntryHandler(e) for e in
@@ -94,11 +125,18 @@ class DatabaseHandler(object):
             row = math.floor(i / self.numColumns)
             column = i % self.numColumns
             self.grid.addWidget(eH.widget, row, column)
+            self.grid.setRowMinimumHeight(row, self.minRowHeight)
         return
 
+    def resized(self):
+        print("resized")
+        self.numColumns = max(math.floor(self.entryView.width() / self.columnWidth), 2)
+        self.updateList()
 
-def testing(ui):
-    db = core.Database()
+def resizeEvent(event):
+    print("yup")
+
+def testing(ui, dbh):
 
     a = core.Entry()
     b = core.Entry()
@@ -117,14 +155,56 @@ def testing(ui):
     f.setText("Love looks not with the eyes, but with the mind,\
 And therefore is winged Cupid painted blind.")
 
-    db.addEntry(a)
-    db.addEntry(b)
-    db.addEntry(c)
-    db.addEntry(d)
-    db.addEntry(e)
-    db.addEntry(f)
+    dbh.addEntry(a)
+    dbh.addEntry(b)
+    dbh.addEntry(c)
+    dbh.addEntry(d)
+    dbh.addEntry(e)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
+    dbh.addEntry(f)
 
-    dbh = DatabaseHandler(db, ui.entryGrid)
+
+    # ui.entryView.resize(ui.entryView.width(), 100)
+
+    # ui.centralwidget.adjustSize()
 
     # ah = EntryHandler(a)
     # bh = EntryHandler(b)
