@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sat Mar  8 15:51:41 2014
+# Created: Sat Mar  8 17:22:14 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -62,6 +62,10 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
         self.entryView = QtGui.QWidget(self.scrollAreaWidgetContents)
         self.entryView.setObjectName(_fromUtf8("entryView"))
+        self.gridLayout_2 = QtGui.QGridLayout(self.entryView)
+        self.gridLayout_2.setMargin(0)
+        self.gridLayout_2.setSpacing(0)
+        self.gridLayout_2.setObjectName(_fromUtf8("gridLayout_2"))
         self.verticalLayout_2.addWidget(self.entryView)
         self.entryScroll.setWidget(self.scrollAreaWidgetContents)
         self.verticalLayout_4.addWidget(self.entryScroll)

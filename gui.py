@@ -2,6 +2,7 @@ import sys
 import math
 import PyQt4
 from PyQt4 import QtGui
+from entrywidget import Ui_EntryWidget
 import mainwindow
 import core
 
@@ -27,6 +28,7 @@ def main():
     sys.exit(app.exec_())
     return
 
+
 def initDB(ui):
     db = core.Database()
     grid = QtGui.QGridLayout()
@@ -39,7 +41,6 @@ def initDB(ui):
 
     dbh.resized()
     return dbh
-
 
 
 class mainWindowHandler(object):
@@ -69,14 +70,9 @@ class EntryHandler(object):
 
     def buildWidget(self):
         self.widget = QtGui.QWidget()
-        self.widget.setLayout(QtGui.QVBoxLayout())
-
-        blankDoc = QtGui.QTextDocument()
-        blankDoc.setDocumentLayout(QtGui.QPlainTextDocumentLayout(blankDoc))
-        self.textBox = QtGui.QPlainTextEdit()
-        self.textBox.setDocument(blankDoc)
-
-        self.widget.layout().addWidget(self.textBox)
+        self.ui = Ui_EntryWidget()
+        self.ui.setupUi(self.widget)
+        self.textBox = self.ui.textBox
         return
 
     def getWidget(self):
@@ -93,6 +89,7 @@ class DatabaseHandler(object):
 
     def __init__(self, database, entryView):
         self.grid = entryView.layout()
+        self.grid.setSpacing(3)
         self.entryView = entryView
         self.database = database
         self.numColumns = 3
@@ -133,8 +130,10 @@ class DatabaseHandler(object):
         self.numColumns = max(math.floor(self.entryView.width() / self.columnWidth), 2)
         self.updateList()
 
+
 def resizeEvent(event):
     print("yup")
+
 
 def testing(ui, dbh):
 
@@ -161,44 +160,41 @@ And therefore is winged Cupid painted blind.")
     dbh.addEntry(d)
     dbh.addEntry(e)
     dbh.addEntry(f)
+    dbh.addEntry(a)
+    dbh.addEntry(b)
+    dbh.addEntry(c)
+    dbh.addEntry(d)
+    dbh.addEntry(e)
     dbh.addEntry(f)
+    dbh.addEntry(a)
+    dbh.addEntry(b)
+    dbh.addEntry(c)
+    dbh.addEntry(d)
+    dbh.addEntry(e)
     dbh.addEntry(f)
+    dbh.addEntry(a)
+    dbh.addEntry(b)
+    dbh.addEntry(c)
+    dbh.addEntry(d)
+    dbh.addEntry(e)
     dbh.addEntry(f)
+    dbh.addEntry(a)
+    dbh.addEntry(b)
+    dbh.addEntry(c)
+    dbh.addEntry(d)
+    dbh.addEntry(e)
     dbh.addEntry(f)
+    dbh.addEntry(a)
+    dbh.addEntry(b)
+    dbh.addEntry(c)
+    dbh.addEntry(d)
+    dbh.addEntry(e)
     dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
-    dbh.addEntry(f)
+    dbh.addEntry(a)
+    dbh.addEntry(b)
+    dbh.addEntry(c)
+    dbh.addEntry(d)
+    dbh.addEntry(e)
     dbh.addEntry(f)
 
 
@@ -220,7 +216,6 @@ And therefore is winged Cupid painted blind.")
     # qDoc.setDocumentLayout(QtGui.QPlainTextDocumentLayout(qDoc))
     # qDoc.setPlainText("Testing setting text")
     # ui.entryText1.setDocument(qDoc)
-
 
 if __name__ == '__main__':
     main()
