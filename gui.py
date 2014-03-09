@@ -8,24 +8,26 @@ import core
 
 
 def main():
-    """Sets up ui from qt .ui file."""
+    """Sets up and Runs App."""
 
+    # initialize ui objects
     app = QtGui.QApplication(sys.argv)
     mw = QtGui.QMainWindow()
     ui = mainwindow.Ui_MainWindow()
     ui.setupUi(mw)
+
+    # Create master object to hold references
     master = MasterHandler()
     master.ui = ui
-    mwHandler = MainWindowHandler(mw, ui)
-    master.mainWindowHandler = mwHandler
-    mwHandler.initMainWindow()
 
+    # Create Handlers:
     dbh = initDB(master, ui)
     master.databaseHandler = dbh
 
     interface = MainInterfaceHandler(master)
     master.mainInterfaceHandler = interface
 
+    # Show, then run app
     mw.show()
     dbh.resized()
 
@@ -36,12 +38,12 @@ def main():
 
 
 def initDB(master, ui):
-    db = core.Database()
-    grid = ui.entryView.layout()
+    """Returns a DatabaseHandler to a new Database."""
 
-    # ui.entryView.setFixedHeight(400)
+    db = core.Database()
 
     dbh = DatabaseHandler(master, db)
+    # Overrides generic resizeEvent to resize Entry View IFFY
     ui.centralwidget.resizeEvent = dbh.resizeEvent
 
     dbh.resized()
@@ -52,7 +54,6 @@ class MasterHandler(object):
 
     def __init__(self):
         self.ui = None
-        self.mainWindowHandler = None
         self.mainInterfaceHandler = None
         self.databaseHandler = None
 
@@ -65,42 +66,33 @@ class MainInterfaceHandler(object):
         self.ui = master.ui 
         self.sortKey = core.Database.SORT_BY_TIME_EDITED
 
+        # Connects New Entry Button
         self.btnNewEntry = self.ui.btnNewEntry
-        self.btnNewEntry.clicked.connect(self.addNewEntry)
+        self.btnNewEntry.clicked.connect(self.addBlankEntry)
 
+        # Connects sortSelector functions
         self.sortSelector = self.ui.sortSelector
-        self.sortSelector.addItem("Time Created", core.Database.SORT_BY_TIME_CREATED)
         self.sortSelector.addItem("Time Edited", core.Database.SORT_BY_TIME_EDITED)
-
+        self.sortSelector.addItem("Time Created", core.Database.SORT_BY_TIME_CREATED)
         self.sortSelector.currentIndexChanged.connect(self.sortingMethodChanged)
 
+        # Connects sorting button
         self.btnSort = self.ui.btnSort
         self.btnSort.clicked.connect(self.sort)
 
     def sort(self):
+        """Tells DatabaseHandler to sort."""
         self.master.databaseHandler.reSort()
 
     def sortingMethodChanged(self):
+        """Changes sorting method to new combobox value."""
         self.sortKey = self.sortSelector.itemData(self.sortSelector.currentIndex())
 
 
-    def addNewEntry(self):
+    def addBlankEntry(self):
+        """Adds a new Blank Entry to the Entry View."""
         self.master.databaseHandler.addEntry(core.Entry())
         self.master.databaseHandler.reSort()
-
-class MainWindowHandler(object):
-    """Main event handler for ui"""
-
-    def __init__(self, mainWindow, ui):
-        super(MainWindowHandler, self).__init__()
-
-        self.mw = mainWindow
-        self.ui = ui
-        # self.btnEditEntry = ui.btnEditEntry
-
-    def initMainWindow(self):
-        """ Sets up main GUI window. """
-        pass
 
 
 class EntryHandler(object):
@@ -157,32 +149,35 @@ class DatabaseHandler(object):
         self.initEntries()
         self.updateList()
         self.resized()
-        # self.grid.resizeEvent = self.resizeEvent
         return
 
     def addEntry(self, entry):
+        """Adds entry to EntryView and database."""
         self.database.addEntry(entry)
         self.entryHandlers.append(EntryHandler(self.master, entry))
         self.updateList()
 
     def deleteEntry(self, entryHandler):
+        """Deletes 'entryHandler'."""
         # self.grid.removeWidget(entryHandler.widget)
+        # IFFY, might need to delete signal handlers
         entryHandler.widget.setParent(None)
         entryHandler.widget.deleteLater()
         self.entryHandlers.remove(entryHandler)
-
         self.updateList()
 
     def resizeEvent(self, event):
+        """Resizes elements when user resizes window."""
         self.resized()
-        pass
 
     def initEntries(self):
+        """Adds handlers for all entries in database."""
         self.entryHandlers = [EntryHandler(e) for e in
                               self.database.getEntries()]
         return
 
     def updateList(self):
+        """Reprints widgets to itemView. """
         for i, eH in enumerate(self.entryHandlers):
             # Magic here fills tiles consecutively left to right, then down.
             row = math.floor(i / self.numColumns)
@@ -194,10 +189,12 @@ class DatabaseHandler(object):
         return
 
     def resized(self):
+        """Resizes columns and rows to match window size."""
         self.numColumns = max(math.floor(self.entryView.width() / self.columnWidth), 2)
         self.updateList()
 
     def reSort(self):
+        """Sorts Entries by sortKey."""
         if self.master.mainInterfaceHandler.sortKey == core.Database.SORT_BY_TIME_EDITED:
             self.entryHandlers.sort(key=lambda x: x.entry.timeLastEdited, reverse=True)
 
@@ -208,6 +205,7 @@ class DatabaseHandler(object):
 
 
 def testing(ui, dbh):
+    """Testing function."""
 
     a = core.Entry()
     b = core.Entry()
