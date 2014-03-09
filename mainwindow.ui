@@ -32,7 +32,7 @@
            <widget class="QLineEdit" name="searchBox"/>
           </item>
           <item>
-           <widget class="QPushButton" name="btn_goSearch">
+           <widget class="QPushButton" name="btnGoSearch">
             <property name="text">
              <string>Go!</string>
             </property>
@@ -41,11 +41,45 @@
          </layout>
         </item>
         <item>
-         <widget class="QPushButton" name="btn_newEntry">
-          <property name="text">
-           <string>New Entry</string>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QPushButton" name="btnNewEntry">
+            <property name="text">
+             <string>New Entry</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Sorting Method:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="sortSelector"/>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnSort">
+            <property name="text">
+             <string>Sort</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
@@ -62,7 +96,7 @@
          <x>0</x>
          <y>0</y>
          <width>782</width>
-         <height>596</height>
+         <height>594</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">

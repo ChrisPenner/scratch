@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sat Mar  8 17:22:14 2014
+# Created: Sat Mar  8 18:46:19 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -43,20 +43,34 @@ class Ui_MainWindow(object):
         self.searchBox = QtGui.QLineEdit(self.centralwidget)
         self.searchBox.setObjectName(_fromUtf8("searchBox"))
         self.horizontalLayout.addWidget(self.searchBox)
-        self.btn_goSearch = QtGui.QPushButton(self.centralwidget)
-        self.btn_goSearch.setObjectName(_fromUtf8("btn_goSearch"))
-        self.horizontalLayout.addWidget(self.btn_goSearch)
+        self.btnGoSearch = QtGui.QPushButton(self.centralwidget)
+        self.btnGoSearch.setObjectName(_fromUtf8("btnGoSearch"))
+        self.horizontalLayout.addWidget(self.btnGoSearch)
         self.verticalLayout.addLayout(self.horizontalLayout)
-        self.btn_newEntry = QtGui.QPushButton(self.centralwidget)
-        self.btn_newEntry.setObjectName(_fromUtf8("btn_newEntry"))
-        self.verticalLayout.addWidget(self.btn_newEntry)
+        self.horizontalLayout_3 = QtGui.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName(_fromUtf8("horizontalLayout_3"))
+        self.btnNewEntry = QtGui.QPushButton(self.centralwidget)
+        self.btnNewEntry.setObjectName(_fromUtf8("btnNewEntry"))
+        self.horizontalLayout_3.addWidget(self.btnNewEntry)
+        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem)
+        self.label_2 = QtGui.QLabel(self.centralwidget)
+        self.label_2.setObjectName(_fromUtf8("label_2"))
+        self.horizontalLayout_3.addWidget(self.label_2)
+        self.sortSelector = QtGui.QComboBox(self.centralwidget)
+        self.sortSelector.setObjectName(_fromUtf8("sortSelector"))
+        self.horizontalLayout_3.addWidget(self.sortSelector)
+        self.btnSort = QtGui.QPushButton(self.centralwidget)
+        self.btnSort.setObjectName(_fromUtf8("btnSort"))
+        self.horizontalLayout_3.addWidget(self.btnSort)
+        self.verticalLayout.addLayout(self.horizontalLayout_3)
         self.horizontalLayout_2.addLayout(self.verticalLayout)
         self.verticalLayout_4.addLayout(self.horizontalLayout_2)
         self.entryScroll = QtGui.QScrollArea(self.centralwidget)
         self.entryScroll.setWidgetResizable(True)
         self.entryScroll.setObjectName(_fromUtf8("entryScroll"))
         self.scrollAreaWidgetContents = QtGui.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 782, 596))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 782, 594))
         self.scrollAreaWidgetContents.setObjectName(_fromUtf8("scrollAreaWidgetContents"))
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
@@ -84,6 +98,8 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow", None))
         self.label.setText(_translate("MainWindow", "Search:", None))
-        self.btn_goSearch.setText(_translate("MainWindow", "Go!", None))
-        self.btn_newEntry.setText(_translate("MainWindow", "New Entry", None))
+        self.btnGoSearch.setText(_translate("MainWindow", "Go!", None))
+        self.btnNewEntry.setText(_translate("MainWindow", "New Entry", None))
+        self.label_2.setText(_translate("MainWindow", "Sorting Method:", None))
+        self.btnSort.setText(_translate("MainWindow", "Sort", None))
 
