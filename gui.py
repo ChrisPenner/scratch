@@ -114,7 +114,29 @@ class EntryHandler(object):
         self.textBox = self.ui.textBox
         self.textBox.textChanged.connect(self.textChange)
         self.ui.btnDelete.clicked.connect(self.deleteSelf)
+
+        self.colorPicker = self.ui.colorPicker
+        self.initColorPicker()
+        self.colorPicker.currentIndexChanged.connect(self.changeColor)
         return
+
+    def initColorPicker(self):
+        self.colorPicker.addItem("White", QtGui.QColor(255, 255, 255))
+        self.colorPicker.addItem("Red", QtGui.QColor(255, 100, 100))
+        self.colorPicker.addItem("Orange", QtGui.QColor(255, 107, 48))
+        self.colorPicker.addItem("Yellow", QtGui.QColor(243, 236, 90))
+        self.colorPicker.addItem("Green", QtGui.QColor(130, 232, 118))
+        self.colorPicker.addItem("Blue", QtGui.QColor(135, 232, 226))
+        self.colorPicker.addItem("Violet", QtGui.QColor(235, 150, 255))
+
+
+    def changeColor(self):
+        """Changes color of textBox's background to match colorPicker"""
+        color = self.colorPicker.itemData(self.colorPicker.currentIndex())
+        palette = self.textBox.palette()
+        palette.setColor(QtGui.QPalette.Base, color );
+        self.textBox.setPalette(palette);
+
 
     def deleteSelf(self):
         self.master.databaseHandler.deleteEntry(self)
@@ -143,7 +165,7 @@ class DatabaseHandler(object):
         self.entryView = self.ui.entryView
         self.database = database
         self.numColumns = 3
-        self.minRowHeight = 150
+        self.minRowHeight = 200
         self.columnWidth = 200
         self.entryHandlers = []
         self.initEntries()

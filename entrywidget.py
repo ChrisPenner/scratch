@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'entrywidget.ui'
 #
-# Created: Sat Mar  8 17:15:26 2014
+# Created: Sun Mar  9 23:46:27 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -33,15 +33,6 @@ class Ui_EntryWidget(object):
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.horizontalLayout = QtGui.QHBoxLayout()
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
-        self.btnDelete = QtGui.QToolButton(EntryWidget)
-        self.btnDelete.setObjectName(_fromUtf8("btnDelete"))
-        self.horizontalLayout.addWidget(self.btnDelete)
-        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem)
-        self.colorPicker = QtGui.QComboBox(EntryWidget)
-        self.colorPicker.setEditable(False)
-        self.colorPicker.setObjectName(_fromUtf8("colorPicker"))
-        self.horizontalLayout.addWidget(self.colorPicker)
         self.selectBox = QtGui.QCheckBox(EntryWidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -52,6 +43,18 @@ class Ui_EntryWidget(object):
         self.selectBox.setText(_fromUtf8(""))
         self.selectBox.setObjectName(_fromUtf8("selectBox"))
         self.horizontalLayout.addWidget(self.selectBox)
+        self.lineEdit = QtGui.QLineEdit(EntryWidget)
+        self.lineEdit.setObjectName(_fromUtf8("lineEdit"))
+        self.horizontalLayout.addWidget(self.lineEdit)
+        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem)
+        self.colorPicker = QtGui.QComboBox(EntryWidget)
+        self.colorPicker.setEditable(False)
+        self.colorPicker.setObjectName(_fromUtf8("colorPicker"))
+        self.horizontalLayout.addWidget(self.colorPicker)
+        self.btnDelete = QtGui.QToolButton(EntryWidget)
+        self.btnDelete.setObjectName(_fromUtf8("btnDelete"))
+        self.horizontalLayout.addWidget(self.btnDelete)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.textBox = QtGui.QPlainTextEdit(EntryWidget)
         self.textBox.setObjectName(_fromUtf8("textBox"))
@@ -62,5 +65,6 @@ class Ui_EntryWidget(object):
 
     def retranslateUi(self, EntryWidget):
         EntryWidget.setWindowTitle(_translate("EntryWidget", "Form", None))
+        self.lineEdit.setText(_translate("EntryWidget", "Title", None))
         self.btnDelete.setText(_translate("EntryWidget", "x", None))
 

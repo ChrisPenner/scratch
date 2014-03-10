@@ -73,6 +73,13 @@
            <widget class="QComboBox" name="sortSelector"/>
           </item>
           <item>
+           <widget class="QCheckBox" name="revSort">
+            <property name="text">
+             <string>Reverse?</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="btnSort">
             <property name="text">
              <string>Sort</string>

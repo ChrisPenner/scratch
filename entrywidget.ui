@@ -23,9 +23,25 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QToolButton" name="btn_Delete">
+      <widget class="QCheckBox" name="selectBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="layoutDirection">
+        <enum>Qt::RightToLeft</enum>
+       </property>
        <property name="text">
-        <string>x</string>
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="lineEdit">
+       <property name="text">
+        <string>Title</string>
        </property>
       </widget>
      </item>
@@ -50,18 +66,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QCheckBox" name="selectBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="layoutDirection">
-        <enum>Qt::RightToLeft</enum>
-       </property>
+      <widget class="QToolButton" name="btnDelete">
        <property name="text">
-        <string/>
+        <string>x</string>
        </property>
       </widget>
      </item>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sat Mar  8 18:46:19 2014
+# Created: Sun Mar  9 23:41:24 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -60,6 +60,9 @@ class Ui_MainWindow(object):
         self.sortSelector = QtGui.QComboBox(self.centralwidget)
         self.sortSelector.setObjectName(_fromUtf8("sortSelector"))
         self.horizontalLayout_3.addWidget(self.sortSelector)
+        self.revSort = QtGui.QCheckBox(self.centralwidget)
+        self.revSort.setObjectName(_fromUtf8("revSort"))
+        self.horizontalLayout_3.addWidget(self.revSort)
         self.btnSort = QtGui.QPushButton(self.centralwidget)
         self.btnSort.setObjectName(_fromUtf8("btnSort"))
         self.horizontalLayout_3.addWidget(self.btnSort)
@@ -101,5 +104,6 @@ class Ui_MainWindow(object):
         self.btnGoSearch.setText(_translate("MainWindow", "Go!", None))
         self.btnNewEntry.setText(_translate("MainWindow", "New Entry", None))
         self.label_2.setText(_translate("MainWindow", "Sorting Method:", None))
+        self.revSort.setText(_translate("MainWindow", "Reverse?", None))
         self.btnSort.setText(_translate("MainWindow", "Sort", None))
 
