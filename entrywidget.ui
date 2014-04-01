@@ -39,8 +39,11 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit">
+      <widget class="QLineEdit" name="titleText">
        <property name="text">
+        <string/>
+       </property>
+       <property name="placeholderText">
         <string>Title</string>
        </property>
       </widget>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'entrywidget.ui'
 #
-# Created: Sun Mar  9 23:46:27 2014
+# Created: Mon Mar 31 23:03:47 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -43,9 +43,10 @@ class Ui_EntryWidget(object):
         self.selectBox.setText(_fromUtf8(""))
         self.selectBox.setObjectName(_fromUtf8("selectBox"))
         self.horizontalLayout.addWidget(self.selectBox)
-        self.lineEdit = QtGui.QLineEdit(EntryWidget)
-        self.lineEdit.setObjectName(_fromUtf8("lineEdit"))
-        self.horizontalLayout.addWidget(self.lineEdit)
+        self.titleText = QtGui.QLineEdit(EntryWidget)
+        self.titleText.setText(_fromUtf8(""))
+        self.titleText.setObjectName(_fromUtf8("titleText"))
+        self.horizontalLayout.addWidget(self.titleText)
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(spacerItem)
         self.colorPicker = QtGui.QComboBox(EntryWidget)
@@ -65,6 +66,6 @@ class Ui_EntryWidget(object):
 
     def retranslateUi(self, EntryWidget):
         EntryWidget.setWindowTitle(_translate("EntryWidget", "Form", None))
-        self.lineEdit.setText(_translate("EntryWidget", "Title", None))
+        self.titleText.setPlaceholderText(_translate("EntryWidget", "Title", None))
         self.btnDelete.setText(_translate("EntryWidget", "x", None))
 
