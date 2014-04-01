@@ -1,17 +1,35 @@
 import sys
 import math
+import pickle
 import PyQt4
 from PyQt4 import QtGui
 from entrywidget import Ui_EntryWidget
 import mainwindow
 import core
 
+USER_ROLE = 32
+
+class Colors(object):
+    """Dict keying core colors to QtGui colors"""
+    index = {
+        core.Colors.WHITE:QtGui.QColor(255, 255, 255),
+        core.Colors.RED:QtGui.QColor(255, 100, 100),
+        core.Colors.ORANGE:QtGui.QColor(255, 107, 48),
+        core.Colors.YELLOW:QtGui.QColor(243, 236, 90),
+        core.Colors.GREEN:QtGui.QColor(130, 232, 118),
+        core.Colors.BLUE:QtGui.QColor(135, 232, 226),
+        core.Colors.VIOLET:QtGui.QColor(235, 150, 255),
+    } 
+
+    def __init__(self):
+        pass
 
 def main():
     """Sets up and Runs App."""
 
     # initialize ui objects
     app = QtGui.QApplication(sys.argv)
+
     mw = QtGui.QMainWindow()
     ui = mainwindow.Ui_MainWindow()
     ui.setupUi(mw)
@@ -27,20 +45,27 @@ def main():
     interface = MainInterfaceHandler(master)
     master.mainInterfaceHandler = interface
 
+    # Initial sorting
+    master.mainInterfaceHandler.sort()
+
     # Show, then run app
     mw.show()
     dbh.resized()
 
-    testing(ui, dbh)
+    # testing(ui, dbh)
+
+    app.aboutToQuit.connect(master.quit)
 
     sys.exit(app.exec_())
     return
 
 
 def initDB(master, ui):
-    """Returns a DatabaseHandler to a new Database."""
-
-    db = core.Database()
+    """Tries to load a DB, if that fails it creates a new one."""
+    try:
+        db = core.load(master.saveDest)
+    except (IOError, EOFError):
+        db = core.Database()
 
     dbh = DatabaseHandler(master, db)
     # Overrides generic resizeEvent to resize Entry View IFFY
@@ -49,6 +74,7 @@ def initDB(master, ui):
     dbh.resized()
     return dbh
 
+
 class MasterHandler(object):
     """Handles references to all major objects."""
 
@@ -56,6 +82,15 @@ class MasterHandler(object):
         self.ui = None
         self.mainInterfaceHandler = None
         self.databaseHandler = None
+
+        self.saveDest = "database.pkl"
+
+    def quit(self):
+        try:
+            save(self.databaseHandler.database, self.saveDest)
+        except IOError:
+            print("Couldn't save, IOError")
+        print("Quitting")
 
 
 class MainInterfaceHandler(object):
@@ -80,6 +115,10 @@ class MainInterfaceHandler(object):
         self.btnSort = self.ui.btnSort
         self.btnSort.clicked.connect(self.sort)
 
+        self.revSort = self.ui.revSort
+        self.revSort.stateChanged.connect(self.reverseSortChanged)
+        self.reverseSortChanged();
+
     def sort(self):
         """Tells DatabaseHandler to sort."""
         self.master.databaseHandler.reSort()
@@ -88,10 +127,15 @@ class MainInterfaceHandler(object):
         """Changes sorting method to new combobox value."""
         self.sortKey = self.sortSelector.itemData(self.sortSelector.currentIndex())
 
+    def reverseSortChanged(self):
+        self.sortInReverse = self.revSort.isChecked()
+
 
     def addBlankEntry(self):
         """Adds a new Blank Entry to the Entry View."""
-        self.master.databaseHandler.addEntry(core.Entry())
+        entry = core.Entry()
+        entry.setText('')
+        self.master.databaseHandler.addEntry(entry)
         self.master.databaseHandler.reSort()
 
 
@@ -104,7 +148,6 @@ class EntryHandler(object):
         self.entry = entry
         self.buildWidget()
 
-        self.setText(entry.getText())
         return
 
     def buildWidget(self):
@@ -112,35 +155,52 @@ class EntryHandler(object):
         self.ui = Ui_EntryWidget()
         self.ui.setupUi(self.widget)
         self.textBox = self.ui.textBox
+        self.setText(self.entry.getText())
         self.textBox.textChanged.connect(self.textChange)
+
+        self.titleText = self.ui.titleText
+        self.setTitle()
+        self.titleText.textChanged.connect(self.titleChange)
+
         self.ui.btnDelete.clicked.connect(self.deleteSelf)
 
         self.colorPicker = self.ui.colorPicker
         self.initColorPicker()
+        self.changeColor();
         self.colorPicker.currentIndexChanged.connect(self.changeColor)
         return
 
     def initColorPicker(self):
-        self.colorPicker.addItem("White", QtGui.QColor(255, 255, 255))
-        self.colorPicker.addItem("Red", QtGui.QColor(255, 100, 100))
-        self.colorPicker.addItem("Orange", QtGui.QColor(255, 107, 48))
-        self.colorPicker.addItem("Yellow", QtGui.QColor(243, 236, 90))
-        self.colorPicker.addItem("Green", QtGui.QColor(130, 232, 118))
-        self.colorPicker.addItem("Blue", QtGui.QColor(135, 232, 226))
-        self.colorPicker.addItem("Violet", QtGui.QColor(235, 150, 255))
-
+        #TODO: Set colorPicker to the entry's current color
+        self.colorPicker.addItem("White", core.Colors.WHITE)
+        self.colorPicker.addItem("Red", core.Colors.RED)
+        self.colorPicker.addItem("Orange", core.Colors.ORANGE)
+        self.colorPicker.addItem("Yellow", core.Colors.YELLOW)
+        self.colorPicker.addItem("Green", core.Colors.GREEN)
+        self.colorPicker.addItem("Blue", core.Colors.BLUE)
+        self.colorPicker.addItem("Violet", core.Colors.VIOLET)
+        currentIndex = self.colorPicker.findData(self.entry.color, USER_ROLE)
+        self.colorPicker.setCurrentIndex(currentIndex)
 
     def changeColor(self):
         """Changes color of textBox's background to match colorPicker"""
         color = self.colorPicker.itemData(self.colorPicker.currentIndex())
+        QTColor = Colors.index[color]
         palette = self.textBox.palette()
-        palette.setColor(QtGui.QPalette.Base, color );
+        palette.setColor(QtGui.QPalette.Base, QTColor );
         self.textBox.setPalette(palette);
+        self.entry.color = color
 
 
     def deleteSelf(self):
         self.master.databaseHandler.deleteEntry(self)
-        pass
+
+    def setTitle(self):
+        self.titleText.selectAll()
+        self.titleText.insert(self.entry.getTitle())
+
+    def titleChange(self):
+        self.entry.setTitle(self.titleText.text())
 
     def textChange(self):
         self.entry.setText(self.textBox.document().toPlainText())
@@ -149,7 +209,6 @@ class EntryHandler(object):
         return self.widget
 
     def setText(self, text):
-        self.entry.setText(text)
         self.textBox.document().setPlainText(text)
         return
 
@@ -186,6 +245,7 @@ class DatabaseHandler(object):
         entryHandler.widget.setParent(None)
         entryHandler.widget.deleteLater()
         self.entryHandlers.remove(entryHandler)
+        self.database.removeEntry(entryHandler.entry)
         self.updateList()
 
     def resizeEvent(self, event):
@@ -194,7 +254,7 @@ class DatabaseHandler(object):
 
     def initEntries(self):
         """Adds handlers for all entries in database."""
-        self.entryHandlers = [EntryHandler(e) for e in
+        self.entryHandlers = [EntryHandler(self.master, e) for e in
                               self.database.getEntries()]
         return
 
@@ -208,6 +268,9 @@ class DatabaseHandler(object):
 
         for row in range(self.grid.rowCount()):
             self.grid.setRowMinimumHeight(row, self.minRowHeight)
+
+        # for eh in self.entryHandlers:
+        #     print(eh.entry.timeLastEdited)
         return
 
     def resized(self):
@@ -217,97 +280,24 @@ class DatabaseHandler(object):
 
     def reSort(self):
         """Sorts Entries by sortKey."""
+        revSort = self.master.mainInterfaceHandler.sortInReverse
         if self.master.mainInterfaceHandler.sortKey == core.Database.SORT_BY_TIME_EDITED:
-            self.entryHandlers.sort(key=lambda x: x.entry.timeLastEdited, reverse=True)
+            self.entryHandlers.sort(key=lambda x: x.entry.timeLastEdited, reverse=revSort)
 
         elif self.master.mainInterfaceHandler.sortKey == core.Database.SORT_BY_TIME_CREATED:
-            self.entryHandlers.sort(key=lambda x: x.entry.timeCreated, reverse=True)
+            self.entryHandlers.sort(key=lambda x: x.entry.timeCreated, reverse=revSort)
 
         self.updateList()
 
 
-def testing(ui, dbh):
-    """Testing function."""
+def save(obj, dest):
+    with open(dest, 'wb') as f:
+        pickle.dump(obj, f)
 
-    a = core.Entry()
-    b = core.Entry()
-    c = core.Entry()
-    d = core.Entry()
-    e = core.Entry()
-    f = core.Entry()
-
-    a.setText("Lorem Ipsum Dolor blah blah blah")
-    b.setText("And that last step again.")
-    c.setText("A rose by any other name would smell as sweet")
-    d.setText("Whether tis' nobler to suffer the slings and\
-     arrows of Outrageous misfortune")
-    e.setText("The fool doth think he is wise, but the wise man knows\
-        himself to be a fool.")
-    f.setText("Love looks not with the eyes, but with the mind,\
-And therefore is winged Cupid painted blind.")
-
-    dbh.addEntry(a)
-    # dbh.addEntry(b)
-    # dbh.addEntry(c)
-    # dbh.addEntry(d)
-    # dbh.addEntry(e)
-    # dbh.addEntry(f)
-    # dbh.addEntry(a)
-    # dbh.addEntry(b)
-    # dbh.addEntry(c)
-    # dbh.addEntry(d)
-    # dbh.addEntry(e)
-    # dbh.addEntry(f)
-    # dbh.addEntry(a)
-    # dbh.addEntry(b)
-    # dbh.addEntry(c)
-    # dbh.addEntry(d)
-    # dbh.addEntry(e)
-    # dbh.addEntry(f)
-    # dbh.addEntry(a)
-    # dbh.addEntry(b)
-    # dbh.addEntry(c)
-    # dbh.addEntry(d)
-    # dbh.addEntry(e)
-    # dbh.addEntry(f)
-    # dbh.addEntry(a)
-    # dbh.addEntry(b)
-    # dbh.addEntry(c)
-    # dbh.addEntry(d)
-    # dbh.addEntry(e)
-    # dbh.addEntry(f)
-    # dbh.addEntry(a)
-    # dbh.addEntry(b)
-    # dbh.addEntry(c)
-    # dbh.addEntry(d)
-    # dbh.addEntry(e)
-    # dbh.addEntry(f)
-    # dbh.addEntry(a)
-    # dbh.addEntry(b)
-    # dbh.addEntry(c)
-    # dbh.addEntry(d)
-    # dbh.addEntry(e)
-    # dbh.addEntry(f)
-
-
-    # ui.entryView.resize(ui.entryView.width(), 100)
-
-    # ui.centralwidget.adjustSize()
-
-    # ah = EntryHandler(a)
-    # bh = EntryHandler(b)
-    # ch = EntryHandler(c)
-    # dh = EntryHandler(d)
-
-    # ui.entryGrid.layout().addWidget(ah.getWidget())
-    # ui.entryGrid.layout().addWidget(bh.getWidget())
-    # ui.entryGrid.layout().addWidget(ch.getWidget())
-    # ui.entryGrid.layout().addWidget(dh.getWidget())
-
-    # qDoc = QtGui.QTextDocument()
-    # qDoc.setDocumentLayout(QtGui.QPlainTextDocumentLayout(qDoc))
-    # qDoc.setPlainText("Testing setting text")
-    # ui.entryText1.setDocument(qDoc)
+def load(dest):
+    with open(dest, 'rb') as f:
+        obj = pickle.load(f)
+        return obj
 
 if __name__ == '__main__':
     main()
