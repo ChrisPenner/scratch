@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'mainwindow.ui'
 #
-# Created: Sun Mar  9 23:41:24 2014
+# Created: Tue Apr  1 17:35:51 2014
 #      by: PyQt4 UI code generator 4.10.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -43,9 +43,6 @@ class Ui_MainWindow(object):
         self.searchBox = QtGui.QLineEdit(self.centralwidget)
         self.searchBox.setObjectName(_fromUtf8("searchBox"))
         self.horizontalLayout.addWidget(self.searchBox)
-        self.btnGoSearch = QtGui.QPushButton(self.centralwidget)
-        self.btnGoSearch.setObjectName(_fromUtf8("btnGoSearch"))
-        self.horizontalLayout.addWidget(self.btnGoSearch)
         self.verticalLayout.addLayout(self.horizontalLayout)
         self.horizontalLayout_3 = QtGui.QHBoxLayout()
         self.horizontalLayout_3.setObjectName(_fromUtf8("horizontalLayout_3"))
@@ -101,7 +98,6 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow", None))
         self.label.setText(_translate("MainWindow", "Search:", None))
-        self.btnGoSearch.setText(_translate("MainWindow", "Go!", None))
         self.btnNewEntry.setText(_translate("MainWindow", "New Entry", None))
         self.label_2.setText(_translate("MainWindow", "Sorting Method:", None))
         self.revSort.setText(_translate("MainWindow", "Reverse?", None))

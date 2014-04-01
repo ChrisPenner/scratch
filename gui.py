@@ -52,8 +52,6 @@ def main():
     mw.show()
     dbh.resized()
 
-    # testing(ui, dbh)
-
     app.aboutToQuit.connect(master.quit)
 
     sys.exit(app.exec_())
@@ -105,6 +103,11 @@ class MainInterfaceHandler(object):
         self.btnNewEntry = self.ui.btnNewEntry
         self.btnNewEntry.clicked.connect(self.addBlankEntry)
 
+        # Connects Searching
+        self.searchBox = self.ui.searchBox
+        self.searchBox.textEdited.connect(self.search)
+
+
         # Connects sortSelector functions
         self.sortSelector = self.ui.sortSelector
         self.sortSelector.addItem("Time Edited", core.Database.SORT_BY_TIME_EDITED)
@@ -128,7 +131,31 @@ class MainInterfaceHandler(object):
         self.sortKey = self.sortSelector.itemData(self.sortSelector.currentIndex())
 
     def reverseSortChanged(self):
-        self.sortInReverse = self.revSort.isChecked()
+        self.sortInReverse = not self.revSort.isChecked()
+
+    def search(self):
+        if self.searchBox.text() == '':
+            self.master.databaseHandler.visibleEntries = self.master.databaseHandler.entryHandlers
+            for eh in self.master.databaseHandler.entryHandlers:
+                eh.textBox.moveCursor(QtGui.QTextCursor.Start)
+            self.sort()
+            self.master.databaseHandler.updateList()
+            return
+
+        searchTerms = self.searchBox.text().split(' ')
+
+        visibleEntries = []
+        for eh in self.master.databaseHandler.entryHandlers:
+            for term in searchTerms:
+                eh.textBox.moveCursor(QtGui.QTextCursor.Start)
+                if eh.textBox.find(term):
+                    if eh not in visibleEntries:
+                        visibleEntries.append(eh)
+                    continue
+
+        self.master.databaseHandler.visibleEntries = visibleEntries
+        self.sort()
+        self.master.databaseHandler.updateList()
 
 
     def addBlankEntry(self):
@@ -227,6 +254,7 @@ class DatabaseHandler(object):
         self.minRowHeight = 200
         self.columnWidth = 200
         self.entryHandlers = []
+        self.visibleEntries = []
         self.initEntries()
         self.updateList()
         self.resized()
@@ -235,7 +263,11 @@ class DatabaseHandler(object):
     def addEntry(self, entry):
         """Adds entry to EntryView and database."""
         self.database.addEntry(entry)
-        self.entryHandlers.append(EntryHandler(self.master, entry))
+        eh = EntryHandler(self.master, entry)
+        self.entryHandlers.append(eh)
+        if eh not in self.visibleEntries:
+            print("added")
+            self.visibleEntries.append(eh)
         self.updateList()
 
     def deleteEntry(self, entryHandler):
@@ -245,6 +277,8 @@ class DatabaseHandler(object):
         entryHandler.widget.setParent(None)
         entryHandler.widget.deleteLater()
         self.entryHandlers.remove(entryHandler)
+        if entryHandler in self.visibleEntries:
+            self.visibleEntries.remove(entryHandler)
         self.database.removeEntry(entryHandler.entry)
         self.updateList()
 
@@ -256,11 +290,15 @@ class DatabaseHandler(object):
         """Adds handlers for all entries in database."""
         self.entryHandlers = [EntryHandler(self.master, e) for e in
                               self.database.getEntries()]
+        self.visibleEntries = self.entryHandlers[:]
         return
 
     def updateList(self):
         """Reprints widgets to itemView. """
-        for i, eH in enumerate(self.entryHandlers):
+        for eH in self.entryHandlers:
+            eH.widget.setParent(None)
+
+        for i, eH in enumerate(self.visibleEntries):
             # Magic here fills tiles consecutively left to right, then down.
             row = math.floor(i / self.numColumns)
             column = i % self.numColumns
@@ -269,8 +307,6 @@ class DatabaseHandler(object):
         for row in range(self.grid.rowCount()):
             self.grid.setRowMinimumHeight(row, self.minRowHeight)
 
-        # for eh in self.entryHandlers:
-        #     print(eh.entry.timeLastEdited)
         return
 
     def resized(self):
@@ -282,10 +318,10 @@ class DatabaseHandler(object):
         """Sorts Entries by sortKey."""
         revSort = self.master.mainInterfaceHandler.sortInReverse
         if self.master.mainInterfaceHandler.sortKey == core.Database.SORT_BY_TIME_EDITED:
-            self.entryHandlers.sort(key=lambda x: x.entry.timeLastEdited, reverse=revSort)
+            self.visibleEntries.sort(key=lambda x: x.entry.timeLastEdited, reverse=revSort)
 
         elif self.master.mainInterfaceHandler.sortKey == core.Database.SORT_BY_TIME_CREATED:
-            self.entryHandlers.sort(key=lambda x: x.entry.timeCreated, reverse=revSort)
+            self.visibleEntries.sort(key=lambda x: x.entry.timeCreated, reverse=revSort)
 
         self.updateList()
 

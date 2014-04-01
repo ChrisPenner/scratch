@@ -20,7 +20,7 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0">
+         <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
           <item>
            <widget class="QLabel" name="label">
             <property name="text">
@@ -30,13 +30,6 @@
           </item>
           <item>
            <widget class="QLineEdit" name="searchBox"/>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btnGoSearch">
-            <property name="text">
-             <string>Go!</string>
-            </property>
-           </widget>
           </item>
          </layout>
         </item>
