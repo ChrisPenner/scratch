@@ -68,7 +68,7 @@ class Entry(object):
         self.text = text
         self.edited()
 
-    def setTitle(self,text):
+    def setTitle(self, text):
         self.title = text
         self.edited()
 
@@ -84,9 +84,11 @@ class Entry(object):
     def getTimeCreated(self):
         return self.timeCreated
 
+
 def save(obj, dest):
     with open(dest, 'wb') as f:
         pickle.dump(obj, f)
+
 
 def load(dest):
     with open(dest, 'rb') as f:

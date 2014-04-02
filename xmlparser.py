@@ -3,6 +3,7 @@
 import core
 import xml.etree.ElementTree as ET
 
+
 def databaseFromXML(xmlURL):
     tree = ET.ElementTree()
     root = tree.parse(xmlURL)

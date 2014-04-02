@@ -1,31 +1,37 @@
 #!/usr/bin/python3
 import sys
+import os
 import math
+import time
 import pickle
 import PyQt4
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 from entrywidget import Ui_EntryWidget
 import mainwindow
 import core
 import xmlparser
 
+# Constants
 USER_ROLE = 32
 DEST = "database.xml"
+BACKUP_XML_DEST = ".~database.xml"
+
 
 class Colors(object):
-    """Dict keying core colors to QtGui colors"""
+    """Dict keying core colors to QtGui colors for reference"""
     index = {
-        core.Colors.WHITE:QtGui.QColor(255, 255, 255),
-        core.Colors.RED:QtGui.QColor(255, 100, 100),
-        core.Colors.ORANGE:QtGui.QColor(255, 107, 48),
-        core.Colors.YELLOW:QtGui.QColor(243, 236, 90),
-        core.Colors.GREEN:QtGui.QColor(130, 232, 118),
-        core.Colors.BLUE:QtGui.QColor(135, 232, 226),
-        core.Colors.VIOLET:QtGui.QColor(235, 150, 255),
-    } 
+        core.Colors.WHITE: QtGui.QColor(255, 255, 255),
+        core.Colors.RED: QtGui.QColor(255, 100, 100),
+        core.Colors.ORANGE: QtGui.QColor(255, 107, 48),
+        core.Colors.YELLOW: QtGui.QColor(243, 236, 90),
+        core.Colors.GREEN: QtGui.QColor(130, 232, 118),
+        core.Colors.BLUE: QtGui.QColor(135, 232, 226),
+        core.Colors.VIOLET: QtGui.QColor(235, 150, 255),
+    }
 
     def __init__(self):
         pass
+
 
 def main():
     """Sets up and Runs App."""
@@ -38,18 +44,21 @@ def main():
     ui.setupUi(mw)
 
     # Create master object to hold references
-    master = MasterHandler()
-    master.ui = ui
+    master = MasterHandler(ui)
 
     # Create Handlers:
-    dbh = initDB(master, ui)
-    master.databaseHandler = dbh
+    dbh = initDB(master)
 
     interface = MainInterfaceHandler(master)
-    master.mainInterfaceHandler = interface
 
     # Initial sorting
     master.mainInterfaceHandler.sort()
+
+    # Sets up and starts Backup timer:
+    backupTimer = QtCore.QTimer()
+    backupTimer.timeout.connect(master.backup)
+    # Backs up every minute
+    backupTimer.start(30000)
 
     # Show, then run app
     mw.show()
@@ -61,28 +70,40 @@ def main():
     return
 
 
-def initDB(master, ui):
+def initDB(master):
     """Tries to load a DB, if that fails it creates a new one."""
-    try:
-        db = core.load(master.saveDest)
-        db = xmlparser.databaseFromXML(DEST)
-    except (IOError, EOFError):
-        db = core.Database()
-        print("No save found, creating new one")
+    if os.path.isfile(BACKUP_XML_DEST):
+        try:
+            db = xmlparser.databaseFromXML(BACKUP_XML_DEST)
+        except:
+            try:
+                db = xmlparser.databaseFromXML(DEST)
+            except (IOError, EOFError):
+                db = core.Database()
+                print("No save found, creating new one") 
+    else:
+        try:
+            # Legacy load from .pkl
+            # db = core.load(master.saveDest)
+            db = xmlparser.databaseFromXML(DEST)
+        except (IOError, EOFError):
+            db = core.Database()
+            print("No save found, creating new one")
 
     dbh = DatabaseHandler(master, db)
     # Overrides generic resizeEvent to resize Entry View IFFY
-    ui.centralwidget.resizeEvent = dbh.resizeEvent
+    master.ui.centralwidget.resizeEvent = dbh.resizeEvent
 
     dbh.resized()
+    master.databaseHandler = dbh
     return dbh
 
 
 class MasterHandler(object):
     """Handles references to all major objects."""
 
-    def __init__(self):
-        self.ui = None
+    def __init__(self, ui):
+        self.ui = ui
         self.mainInterfaceHandler = None
         self.databaseHandler = None
 
@@ -91,11 +112,17 @@ class MasterHandler(object):
     def quit(self):
         try:
             # save(self.databaseHandler.database, self.saveDest)
-            xmlparser.databaseToXML(DEST, self.databaseHandler.database) 
+            writeXML(DEST, self.databaseHandler.database)
+            if os.path.isfile(BACKUP_XML_DEST):
+                os.remove(BACKUP_XML_DEST)
         except IOError:
             print("Couldn't save, IOError")
 
         print("Quitting")
+
+    def backup(self):
+        writeXML(BACKUP_XML_DEST, self.databaseHandler.database)
+        print("Backed up at", time.asctime())
 
 
 class MainInterfaceHandler(object):
@@ -103,8 +130,9 @@ class MainInterfaceHandler(object):
 
     def __init__(self, master):
         self.master = master
-        self.ui = master.ui 
-        self.sortKey = core.Database.SORT_BY_TIME_EDITED
+        self.ui = master.ui
+        master.mainInterfaceHandler = self
+
 
         # Connects New Entry Button
         self.btnNewEntry = self.ui.btnNewEntry
@@ -114,39 +142,53 @@ class MainInterfaceHandler(object):
         self.searchBox = self.ui.searchBox
         self.searchBox.textEdited.connect(self.search)
 
-
         # Connects sortSelector functions
+        self.sortKey = core.Database.SORT_BY_TIME_EDITED
         self.sortSelector = self.ui.sortSelector
-        self.sortSelector.addItem("Time Edited", core.Database.SORT_BY_TIME_EDITED)
-        self.sortSelector.addItem("Time Created", core.Database.SORT_BY_TIME_CREATED)
-        self.sortSelector.currentIndexChanged.connect(self.sortingMethodChanged)
+        self.initSortSelector()
 
-        # Connects sorting button
+        # Connects sorting buttons
         self.btnSort = self.ui.btnSort
         self.btnSort.clicked.connect(self.sort)
 
         self.revSort = self.ui.revSort
         self.revSort.stateChanged.connect(self.reverseSortChanged)
-        self.reverseSortChanged();
+
+        # init revSort value
+        self.reverseSortChanged()
+
+    def initSortSelector(self):
+        """Adds values to sorting combobox"""
+        self.sortSelector.addItem(
+            "Time Edited", core.Database.SORT_BY_TIME_EDITED)
+        self.sortSelector.addItem(
+            "Time Created", core.Database.SORT_BY_TIME_CREATED)
+        self.sortSelector.currentIndexChanged.connect(
+            self.sortingMethodChanged)
+        return
 
     def sort(self):
         """Tells DatabaseHandler to sort."""
-        self.master.databaseHandler.reSort()
+        self.master.databaseHandler.sort()
+        return
 
     def sortingMethodChanged(self):
         """Changes sorting method to new combobox value."""
-        self.sortKey = self.sortSelector.itemData(self.sortSelector.currentIndex())
+        self.sortKey = self.sortSelector.itemData(
+            self.sortSelector.currentIndex())
 
     def reverseSortChanged(self):
+        """Swaps reverse sort value when box is ticked."""
         self.sortInReverse = not self.revSort.isChecked()
 
     def search(self):
+        """Searches text of all entries and displays valid matches."""
         if self.searchBox.text() == '':
-            self.master.databaseHandler.visibleEntries = self.master.databaseHandler.entryHandlers
+            self.master.databaseHandler.visibleEntries = (
+                self.master.databaseHandler.entryHandlers[:])
             for eh in self.master.databaseHandler.entryHandlers:
                 eh.textBox.moveCursor(QtGui.QTextCursor.Start)
             self.sort()
-            self.master.databaseHandler.updateList()
             return
 
         searchTerms = self.searchBox.text().split(' ')
@@ -154,23 +196,22 @@ class MainInterfaceHandler(object):
         visibleEntries = []
         for eh in self.master.databaseHandler.entryHandlers:
             for term in searchTerms:
+                # Cursor must be at start of text to match anything.
                 eh.textBox.moveCursor(QtGui.QTextCursor.Start)
-                if eh.textBox.find(term):
+
+                if eh.textBox.find(term) or (term.lower() in eh.titleText.text().lower()):
                     if eh not in visibleEntries:
                         visibleEntries.append(eh)
-                    continue
+                    break
 
         self.master.databaseHandler.visibleEntries = visibleEntries
         self.sort()
-        self.master.databaseHandler.updateList()
-
 
     def addBlankEntry(self):
         """Adds a new Blank Entry to the Entry View."""
         entry = core.Entry()
-        entry.setText('')
         self.master.databaseHandler.addEntry(entry)
-        self.master.databaseHandler.reSort()
+        self.sort()
 
 
 class EntryHandler(object):
@@ -181,7 +222,6 @@ class EntryHandler(object):
         self.ui = master.ui
         self.entry = entry
         self.buildWidget()
-
         return
 
     def buildWidget(self):
@@ -200,12 +240,12 @@ class EntryHandler(object):
 
         self.colorPicker = self.ui.colorPicker
         self.initColorPicker()
-        self.changeColor();
-        self.colorPicker.currentIndexChanged.connect(self.changeColor)
+        self.changeColor()
+        self.colorPicker.currentIndexChanged.connect(
+            self.changeColor)
         return
 
     def initColorPicker(self):
-        #TODO: Set colorPicker to the entry's current color
         self.colorPicker.addItem("White", core.Colors.WHITE)
         self.colorPicker.addItem("Red", core.Colors.RED)
         self.colorPicker.addItem("Orange", core.Colors.ORANGE)
@@ -213,31 +253,37 @@ class EntryHandler(object):
         self.colorPicker.addItem("Green", core.Colors.GREEN)
         self.colorPicker.addItem("Blue", core.Colors.BLUE)
         self.colorPicker.addItem("Violet", core.Colors.VIOLET)
+        # Set colorPicker to entry's color
         currentIndex = self.colorPicker.findData(self.entry.color, USER_ROLE)
         self.colorPicker.setCurrentIndex(currentIndex)
+        return
 
     def changeColor(self):
         """Changes color of textBox's background to match colorPicker"""
         color = self.colorPicker.itemData(self.colorPicker.currentIndex())
         QTColor = Colors.index[color]
         palette = self.textBox.palette()
-        palette.setColor(QtGui.QPalette.Base, QTColor );
-        self.textBox.setPalette(palette);
+        palette.setColor(QtGui.QPalette.Base, QTColor)
+        self.textBox.setPalette(palette)
         self.entry.color = color
-
+        return
 
     def deleteSelf(self):
         self.master.databaseHandler.deleteEntry(self)
+        return
 
     def setTitle(self):
-        self.titleText.selectAll()
+        self.titleText.clear()
         self.titleText.insert(self.entry.getTitle())
+        return
 
     def titleChange(self):
         self.entry.setTitle(self.titleText.text())
+        return
 
     def textChange(self):
         self.entry.setText(self.textBox.document().toPlainText())
+        return
 
     def getWidget(self):
         return self.widget
@@ -275,6 +321,7 @@ class DatabaseHandler(object):
         if eh not in self.visibleEntries:
             self.visibleEntries.append(eh)
         self.updateList()
+        return
 
     def deleteEntry(self, entryHandler):
         """Deletes 'entryHandler'."""
@@ -287,10 +334,7 @@ class DatabaseHandler(object):
             self.visibleEntries.remove(entryHandler)
         self.database.removeEntry(entryHandler.entry)
         self.updateList()
-
-    def resizeEvent(self, event):
-        """Resizes elements when user resizes window."""
-        self.resized()
+        return
 
     def initEntries(self):
         """Adds handlers for all entries in database."""
@@ -312,34 +356,49 @@ class DatabaseHandler(object):
 
         for row in range(self.grid.rowCount()):
             self.grid.setRowMinimumHeight(row, self.minRowHeight)
+        return
 
+    def resizeEvent(self, event):
+        """Resizes elements when user resizes window."""
+        self.resized()
         return
 
     def resized(self):
         """Resizes columns and rows to match window size."""
-        self.numColumns = max(math.floor(self.entryView.width() / self.columnWidth), 2)
+        self.numColumns = max(
+            math.floor(self.entryView.width() / self.columnWidth), 2)
         self.updateList()
+        return
 
-    def reSort(self):
+    def sort(self):
         """Sorts Entries by sortKey."""
         revSort = self.master.mainInterfaceHandler.sortInReverse
-        if self.master.mainInterfaceHandler.sortKey == core.Database.SORT_BY_TIME_EDITED:
-            self.visibleEntries.sort(key=lambda x: x.entry.timeLastEdited, reverse=revSort)
+        if (self.master.mainInterfaceHandler.sortKey ==
+                core.Database.SORT_BY_TIME_EDITED):
+            self.visibleEntries.sort(key=lambda x:\
+                x.entry.timeLastEdited, reverse=revSort)
 
-        elif self.master.mainInterfaceHandler.sortKey == core.Database.SORT_BY_TIME_CREATED:
-            self.visibleEntries.sort(key=lambda x: x.entry.timeCreated, reverse=revSort)
-
+        elif (self.master.mainInterfaceHandler.sortKey ==
+                core.Database.SORT_BY_TIME_CREATED):
+            self.visibleEntries.sort(key=lambda x:\
+                x.entry.timeCreated, reverse=revSort)
         self.updateList()
+        return
 
 
 def save(obj, dest):
     with open(dest, 'wb') as f:
         pickle.dump(obj, f)
+        return
+
 
 def load(dest):
     with open(dest, 'rb') as f:
         obj = pickle.load(f)
         return obj
+
+def writeXML(dest, database):
+    xmlparser.databaseToXML(dest, database)
 
 if __name__ == '__main__':
     main()
