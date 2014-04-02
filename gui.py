@@ -191,7 +191,7 @@ class MainInterfaceHandler(object):
             self.sort()
             return
 
-        searchTerms = self.searchBox.text().split(' ')
+        searchTerms = makeString(self.searchBox.text()).split(' ')
         if '' in searchTerms:
             searchTerms.remove('')
 
@@ -203,7 +203,7 @@ class MainInterfaceHandler(object):
                 # Cursor must be at start of text to match anything.
                 eh.textBox.moveCursor(QtGui.QTextCursor.Start)
 
-                if eh.textBox.find(term) or (term.lower() in eh.titleText.text().lower()):
+                if eh.textBox.find(term) or (makeString(term).lower() in makeString(eh.titleText.text()).lower()):
                         matches += 1
 
             if matches > 0:
@@ -267,7 +267,7 @@ class EntryHandler(object):
 
     def changeColor(self):
         """Changes color of textBox's background to match colorPicker"""
-        color = self.colorPicker.itemData(self.colorPicker.currentIndex())
+        color = makeString(self.colorPicker.itemData(self.colorPicker.currentIndex()))
         QTColor = Colors.index[color]
         palette = self.textBox.palette()
         palette.setColor(QtGui.QPalette.Base, QTColor)
@@ -405,6 +405,14 @@ def load(dest):
 
 def writeXML(dest, database):
     xmlparser.databaseToXML(dest, database)
+
+def makeString(obj):
+    if type(obj) is str:
+        return obj
+    elif type(obj) is QtCore.QString:
+        return str(obj)
+    else:
+        return str(obj.toString())
 
 if __name__ == '__main__':
     main()
