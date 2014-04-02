@@ -54,15 +54,15 @@ class Entry(object):
 
     def __init__(self):
         """Initializes new Entry instance."""
-        self.timeCreated = time.localtime()
-        self.timeLastEdited = time.localtime()
+        self.timeCreated = time.time()
+        self.timeLastEdited = time.time()
         self.title = ''
         self.text = ''
         self.color = Colors.WHITE
         return
 
     def edited(self):
-        self.timeLastEdited = time.localtime()
+        self.timeLastEdited = time.time()
 
     def setText(self, text):
         self.text = text

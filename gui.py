@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import sys
 import math
 import pickle
@@ -6,8 +7,10 @@ from PyQt4 import QtGui
 from entrywidget import Ui_EntryWidget
 import mainwindow
 import core
+import xmlparser
 
 USER_ROLE = 32
+DEST = "database.xml"
 
 class Colors(object):
     """Dict keying core colors to QtGui colors"""
@@ -62,8 +65,10 @@ def initDB(master, ui):
     """Tries to load a DB, if that fails it creates a new one."""
     try:
         db = core.load(master.saveDest)
+        db = xmlparser.databaseFromXML(DEST)
     except (IOError, EOFError):
         db = core.Database()
+        print("No save found, creating new one")
 
     dbh = DatabaseHandler(master, db)
     # Overrides generic resizeEvent to resize Entry View IFFY
@@ -85,9 +90,11 @@ class MasterHandler(object):
 
     def quit(self):
         try:
-            save(self.databaseHandler.database, self.saveDest)
+            # save(self.databaseHandler.database, self.saveDest)
+            xmlparser.databaseToXML(DEST, self.databaseHandler.database) 
         except IOError:
             print("Couldn't save, IOError")
+
         print("Quitting")
 
 
@@ -266,7 +273,6 @@ class DatabaseHandler(object):
         eh = EntryHandler(self.master, entry)
         self.entryHandlers.append(eh)
         if eh not in self.visibleEntries:
-            print("added")
             self.visibleEntries.append(eh)
         self.updateList()
 
