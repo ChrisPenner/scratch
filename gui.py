@@ -192,20 +192,27 @@ class MainInterfaceHandler(object):
             return
 
         searchTerms = self.searchBox.text().split(' ')
+        if '' in searchTerms:
+            searchTerms.remove('')
 
-        visibleEntries = []
+        results = []
         for eh in self.master.databaseHandler.entryHandlers:
+            # Search Prioritizes based on number of matches
+            matches = 0
             for term in searchTerms:
                 # Cursor must be at start of text to match anything.
                 eh.textBox.moveCursor(QtGui.QTextCursor.Start)
 
                 if eh.textBox.find(term) or (term.lower() in eh.titleText.text().lower()):
-                    if eh not in visibleEntries:
-                        visibleEntries.append(eh)
-                    break
+                        matches += 1
 
-        self.master.databaseHandler.visibleEntries = visibleEntries
-        self.sort()
+            if matches > 0:
+                results.append((matches, eh))
+
+        results.sort(key=lambda x:x[0], reverse=True)
+
+        self.master.databaseHandler.visibleEntries = [x[1] for x in results]
+        self.master.databaseHandler.updateList()
 
     def addBlankEntry(self):
         """Adds a new Blank Entry to the Entry View."""
@@ -338,8 +345,7 @@ class DatabaseHandler(object):
 
     def initEntries(self):
         """Adds handlers for all entries in database."""
-        self.entryHandlers = [EntryHandler(self.master, e) for e in
-                              self.database.getEntries()]
+        self.entryHandlers = [EntryHandler(self.master, e) for e in self.database.getEntries()]
         self.visibleEntries = self.entryHandlers[:]
         return
 
